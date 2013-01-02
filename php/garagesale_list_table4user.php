@@ -4,11 +4,13 @@
 ** (we cannot use an instance of WP_List_Table here, because this is only for admin area)
 ** @author Leo Eibler - wordpress@sprossenwanne.at
 ** @date 20120330 wordpress@sprossenwanne.at
-**               create class \n
+**                create class \n
 ** @date 20120420 wordpress@sprossenwanne.at
-**               modify type of price from float to varchar \n
-**               show user display_name instead of user_nicename \n
-**               add license \n
+**                modify type of price from float to varchar \n
+**                show user display_name instead of user_nicename \n
+**                add license \n
+** @date 20130102 wordpress@sprossenwanne.at
+**                bugfix remove prepare calls with only 1 argument to work with wordpress 3.5 \n
 */
 
 /*
@@ -175,11 +177,11 @@ class GarageSale_List_Table4User {
         $current_page = $this->get_pagenum();
         
 		$limit = ' LIMIT '.$per_page.' OFFSET '.($current_page-1)*$per_page;
-		$data = $wpdb->get_results( $wpdb->prepare( $select.' '.$wc.$order.$limit ), ARRAY_A );
+		$data = $wpdb->get_results( $select.' '.$wc.$order.$limit, ARRAY_A );
                 
 		$select = 'SELECT COUNT(id) AS total_items FROM '.$this->table_stuff.' '.$wc;
 		$total_items = 0;
-		$dataTotalItems = $wpdb->get_row( $wpdb->prepare( $select ), ARRAY_A, 0 );
+		$dataTotalItems = $wpdb->get_row( $select, ARRAY_A, 0 );
 		if( isset( $dataTotalItems['total_items'] ) ) {
 			$total_items = $dataTotalItems['total_items'];
 		}

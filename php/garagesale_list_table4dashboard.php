@@ -3,10 +3,12 @@
 ** @brief leightweight table layout class to display users item list in dashboard widget for garagesale wordpress plugin
 ** @author Leo Eibler - wordpress@sprossenwanne.at
 ** @date 20120331 wordpress@sprossenwanne.at
-**               create class \n
+**                create class \n
 ** @date 20120420 wordpress@sprossenwanne.at
-**               modify type of price from float to varchar \n
-**               add license \n
+**                modify type of price from float to varchar \n
+**                add license \n
+** @date 20130102 wordpress@sprossenwanne.at
+**                bugfix remove prepare calls with only 1 argument to work with wordpress 3.5 \n
 */
 
 /*
@@ -127,7 +129,7 @@ class GarageSale_List_Table4Dashboard {
 		$order = ' ORDER BY s.post_date DESC ';
 		$limit = ' LIMIT '.GARAGESALE_LIST_TABLE4DASHBOARD_NROFITEMS.' OFFSET 0 ';
 
-		$data = $wpdb->get_results( $wpdb->prepare( $select.' '.$wc.$order.$limit ), ARRAY_A );
+		$data = $wpdb->get_results( $select.' '.$wc.$order.$limit, ARRAY_A );
 		$this->items = $data;
     }
 	
