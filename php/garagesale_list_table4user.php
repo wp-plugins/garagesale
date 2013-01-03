@@ -1,6 +1,6 @@
 <?php
 /*
-** @brief leightweight table layout class to display in user area for garagesale wordpress plugin
+** @brief lightweight table layout class to display in user area for garagesale wordpress plugin
 ** (we cannot use an instance of WP_List_Table here, because this is only for admin area)
 ** @author Leo Eibler - wordpress@sprossenwanne.at
 ** @date 20120330 wordpress@sprossenwanne.at
@@ -11,16 +11,21 @@
 **                add license \n
 ** @date 20130102 wordpress@sprossenwanne.at
 **                bugfix remove prepare calls with only 1 argument to work with wordpress 3.5 \n
+** @date 20130103 wordpress@sprossenwanne.at
+**                bugfix use $_REQUEST instead of $_GET to work with some specials wordpress 3.5 \n
+**                add define GARAGESALE_ITEMS_PER_PAGE in garagesale.php as single point of configuration \n
+**                bugfix pagination \n
+**                improve get_pagenum() method \n
 */
 
 /*
-  Copyright 2012 Leo Eibler (http://www.eibler.at)
+  Copyright 2012-2013 Leo Eibler (http://www.eibler.at)
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+	   http://www.apache.org/licenses/LICENSE-2.0
 
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
@@ -53,19 +58,19 @@ class GarageSale_List_Table4User {
 	protected $order = '';
 	protected $orderby = '';
 	
-    
-    function __construct(){
-    }
+	
+	function __construct(){
+	}
  
-    function column_default($item, $column_name){
-        switch($column_name){
-            case 'name':
+	function column_default($item, $column_name){
+		switch($column_name){
+			case 'name':
 				$out = '<span class="garagesale-field garagesale-field-name">'.format_to_edit($item[$column_name]).'</span><br />';
 				if( isset($item['description']) && !empty($item['description']) ) {
 					$out .= '<span class="garagesale-field garagesale-field-description">'.format_to_edit($item['description']).'</span>';
 				}
 				return $out;
-            case 'post_author':
+			case 'post_author':
 			case 'display_name':
 				$post_date = date_i18n(get_option('date_format') ,strtotime($item['post_date']));
 				$out = '<span class="garagesale-field garagesale-field-post_date">'.$post_date.'</span><br />';
@@ -75,7 +80,7 @@ class GarageSale_List_Table4User {
 				}
 				return $out;
 			case 'contact':
-                return format_to_edit($item[$column_name]);
+				return format_to_edit($item[$column_name]);
 			case 'description':
 				if( mb_strlen($item[$column_name]) > 60 ) {
 					return  format_to_edit( mb_substr( $item[$column_name], 0, 60 ) ).'...';
@@ -106,45 +111,45 @@ class GarageSale_List_Table4User {
 					return __('Active','garagesale');
 				}
 			default:
-                return print_r($item,true); //Show the whole array for troubleshooting purposes
-        }
-    }
-    
-    function get_columns(){
-        $columns = array(
+				return print_r($item,true); //Show the whole array for troubleshooting purposes
+		}
+	}
+	
+	function get_columns(){
+		$columns = array(
 			'picture'    => __('Picture','garagesale'),
 			'name'     => __('Title','garagesale'),
 			'display_name'    => __('Author','garagesale'),
 			'price'    => __('Price','garagesale'),
-        );
-        return $columns;
-    }
-    
-    function get_sortable_columns() {
-        $sortable_columns = array(
+		);
+		return $columns;
+	}
+	
+	function get_sortable_columns() {
+		$sortable_columns = array(
 			'post_date'     => array('post_date',true),     //true means its already sorted
-            'status'     => array('status',false),     //true means its already sorted
-            'name'     => array('name',false),     //true means its already sorted
-            'display_name'    => array('display_name',false)
-        );
-        return $sortable_columns;
-    }
+			'status'     => array('status',false),     //true means its already sorted
+			'name'     => array('name',false),     //true means its already sorted
+			'display_name'    => array('display_name',false)
+		);
+		return $sortable_columns;
+	}
 	
 	function process_bulk_action() {
 	}
-    
-    function prepare_items() {
+	
+	function prepare_items() {
 		global $wpdb;
-        
-        $per_page = 5;
-        
-        $columns = $this->get_columns();
-        $hidden = array();
-        $sortable = $this->get_sortable_columns();
-        
-        $this->_column_headers = array($columns, $hidden, $sortable);
+		
+		$per_page = GARAGESALE_ITEMS_PER_PAGE;
+		
+		$columns = $this->get_columns();
+		$hidden = array();
+		$sortable = $this->get_sortable_columns();
+		
+		$this->_column_headers = array($columns, $hidden, $sortable);
 
-        $this->process_bulk_action();
+		$this->process_bulk_action();
 
 		$select = 'SELECT '.
 			's.id, s.id, s.post_author, s.post_date, s.category, s.name, '.
@@ -174,26 +179,26 @@ class GarageSale_List_Table4User {
 		}
 		$order .= ' '.$this->order.' ';
 
-        $current_page = $this->get_pagenum();
-        
-		$limit = ' LIMIT '.$per_page.' OFFSET '.($current_page-1)*$per_page;
-		$data = $wpdb->get_results( $select.' '.$wc.$order.$limit, ARRAY_A );
-                
-		$select = 'SELECT COUNT(id) AS total_items FROM '.$this->table_stuff.' '.$wc;
+		// first setup pagination
+		$selectTotalItems = 'SELECT COUNT(id) AS total_items FROM '.$this->table_stuff.' '.$wc;
 		$total_items = 0;
-		$dataTotalItems = $wpdb->get_row( $select, ARRAY_A, 0 );
+		$dataTotalItems = $wpdb->get_row( $selectTotalItems, ARRAY_A, 0 );
 		if( isset( $dataTotalItems['total_items'] ) ) {
 			$total_items = $dataTotalItems['total_items'];
 		}
-		        
-        $this->items = $data;
+		$this->set_pagination_args( array(
+			'total_items' => $total_items,                  //WE have to calculate the total number of items
+			'per_page'    => $per_page,                     //WE have to determine how many items to show on a page
+			'total_pages' => ceil($total_items/$per_page)   //WE have to calculate the total number of pages
+		) );
 
-        $this->set_pagination_args( array(
-            'total_items' => $total_items,                  //WE have to calculate the total number of items
-            'per_page'    => $per_page,                     //WE have to determine how many items to show on a page
-            'total_pages' => ceil($total_items/$per_page)   //WE have to calculate the total number of pages
-        ) );
-    }
+		// now select the items for given page
+		$current_page = $this->get_pagenum();
+		$limit = ' LIMIT '.$per_page.' OFFSET '.($current_page-1)*$per_page;
+		$data = $wpdb->get_results( $select.' '.$wc.$order.$limit, ARRAY_A );
+
+		$this->items = $data;
+	}
 	
 	public function getLink( $page=false, $orderby=false, $order=false ) {
 		$link = '';
@@ -219,7 +224,7 @@ class GarageSale_List_Table4User {
 		}
 		return $permalink.$link;
 	}
-    
+	
 	public function getPageNavLink( $page=0 ) {
 		if( $page < 1 ) {
 			$page = 1;
@@ -284,9 +289,12 @@ class GarageSale_List_Table4User {
 	}
 	
 	public function get_pagenum() {
-		if( isset($_GET['paged']) && is_numeric($_GET['paged']) ) {
-			if( $_GET['paged'] > 0 ) {
-				return $_GET['paged'];
+		if( isset($_REQUEST['paged']) && is_numeric($_REQUEST['paged']) ) {
+			if( $_REQUEST['paged'] > $this->getTotalPages() ) {
+				return $this->getTotalPages();
+			}
+			if( $_REQUEST['paged'] > 0 ) {
+				return $_REQUEST['paged'];
 			}
 		}
 		return 1;
@@ -303,7 +311,7 @@ class GarageSale_List_Table4User {
 		if( isset($this->pagination['per_page']) ) {
 			return $this->pagination['per_page'];
 		}
-		return 10;
+		return GARAGESALE_ITEMS_PER_PAGE;
 	}
 	
 	public function getTotalPages() {

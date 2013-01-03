@@ -1,13 +1,22 @@
 <?php
 /**
  * @package GarageSale
- * @version 1.1
+ * @version 1.2.1
  * @date 20120401 wordpress@sprossenwanne.at
  *                finalize plugin \n
  * @date 20120420 wordpress@sprossenwanne.at
-*                version change from 1.0 -> 1.1 \n
-*                modify type of price from float to varchar \n
-*                add license \n
+ *                version change from 1.0 -> 1.1 \n
+ *                modify type of price from float to varchar \n
+ *                add license \n
+ * @date 20130102 wordpress@sprossenwanne.at
+ *                version change from 1.1 -> 1.2 \n
+ *                bugfix remove prepare calls with only 1 argument to work with wordpress 3.5 \n
+ * @date 20130103 wordpress@sprossenwanne.at
+ *                version change from 1.2 -> 1.2.1 \n
+ *                bugfix use $_REQUEST instead of $_GET to work with wordpress 3.5 \n
+ *                add define GARAGESALE_ITEMS_PER_PAGE in garagesale.php as single point of configuration \n
+ *                bugfix use wp_get_image_editor() instead of wp_create_thumbnail() in wordpress version greater or equal than 3.5 \n
+ *                improve error handling (use trigger_error) if something was wrong while uploading image \n
  */
 /*
 Plugin Name: Garage Sale
@@ -15,13 +24,13 @@ Plugin URI: http://www.eibler.at/garagesale
 Description: This plugin is a lightweight solution to put a kind of garage sale on your wordpress page. Users can put their stuff with a picture, description, price and contact on a wordpress site. The users are wordpress users with access right Subscriber (so every registered user can use the garage sale). Put the string "[GarageSaleList]" on any page or article post where you want to display the list of sale items.
 This Plugin creates an own subfolder within the upload folder for the pictures.
 Author: Leo Eibler
-Version: 1.1
+Version: 1.2.1
 Author URI: http://www.eibler.at
 Text Domain: garagesale
 */
 
 /*
-  Copyright 2012 Leo Eibler (http://www.eibler.at)
+  Copyright 2012-2013 Leo Eibler (http://www.eibler.at)
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -44,7 +53,12 @@ Text Domain: garagesale
 /*
 ** @brief GARAGESALE_VERSION: version number of current plugin (can be used for plugin upgrade procedure in future)
 */
-define( 'GARAGESALE_VERSION', '1.1' );
+define( 'GARAGESALE_VERSION', '1.2.1' );
+
+/*
+** @brief GARAGESALE_ITEMS_PER_PAGE: the number of items per page displayed in the tables
+*/
+define( 'GARAGESALE_ITEMS_PER_PAGE', 5 );
 
 /*
 ** @brief GARAGESALE_TABLE_PREFIX: the prefix for all garagesale tables
@@ -293,18 +307,39 @@ class GarageSalePlugin {
 				} while( file_exists(GARAGESALE_UPLOAD_DIR.'/'.$newUploadFile) );
 				$ret = @move_uploaded_file( $tempname, GARAGESALE_UPLOAD_DIR.'/'.$newUploadFile );
 				if( !$ret ) {
-					// TODO: Error handling
+					trigger_error( "GARAGESALE ERROR: something was wrong while uploading file '".$origfilename."'", E_USER_ERROR );
 				} else {
 					$this->data['picture_original'] = GARAGESALE_UPLOAD_URL.'/'.$newUploadFile;
-					$newfile = wp_create_thumbnail( GARAGESALE_UPLOAD_DIR.'/'.$newUploadFile, GARAGESALE_IMAGE_SIZE );
+					global $wp_version;
+					$newfile = '';
+					if( version_compare( $wp_version, '3.5', '>=' ) ) {
+						$gs_image = wp_get_image_editor( GARAGESALE_UPLOAD_DIR.'/'.$newUploadFile );
+						if ( ! is_wp_error( $gs_image ) ) {
+							$gs_image->resize( GARAGESALE_IMAGE_SIZE, GARAGESALE_IMAGE_SIZE, false );
+							$tempName = GARAGESALE_UPLOAD_DIR.'/resizetemp_'.time().'_'.$newUploadFile;
+							$gs_image_res = $gs_image->save( $tempName );
+							if( is_array($gs_image_res) && isset($gs_image_res['path']) && isset($gs_image_res['file']) && isset($gs_image_res['width']) && isset($gs_image_res['height']) ) {
+								$gs_file_extpos = strrpos( $newUploadFile, '.' );
+								$newUploadFile2 = substr( $newUploadFile, 0, $gs_file_extpos ).'-'.$gs_image_res['width'].'x'.$gs_image_res['height'].substr( $newUploadFile, $gs_file_extpos );
+								@rename( $tempName, GARAGESALE_UPLOAD_DIR.'/'.$newUploadFile2 );
+								$newfile = GARAGESALE_UPLOAD_DIR.'/'.$newUploadFile2;
+							} else {
+								trigger_error( "GARAGESALE ERROR: cannot resize or save uploaded file '".GARAGESALE_UPLOAD_DIR.'/'.$newUploadFile."' using wp_get_image_editor", E_USER_ERROR );
+							}
+						}
+					} else {
+						$newfile = wp_create_thumbnail( GARAGESALE_UPLOAD_DIR.'/'.$newUploadFile, GARAGESALE_IMAGE_SIZE );
+					}
 					if( file_exists( $newfile ) ) {
 						$this->data['picture'] = GARAGESALE_UPLOAD_URL.'/'.basename($newfile);
+					} else {
+						trigger_error( "GARAGESALE ERROR: resized file cannot be found at '".GARAGESALE_UPLOAD_DIR.'/'.$newUploadFile."'", E_USER_ERROR );
 					}
 				}
 			}
 		} else {
-			if( isset($_GET['id']) ) {
-				$this->data['id'] = sprintf( '%d', $_GET['id'] );
+			if( isset($_REQUEST['id']) ) {
+				$this->data['id'] = sprintf( '%d', $_REQUEST['id'] );
 			}
 		}
 		if( $this->data['id'] > 0 ) {

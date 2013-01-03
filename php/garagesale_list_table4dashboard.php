@@ -1,6 +1,6 @@
 <?php
 /*
-** @brief leightweight table layout class to display users item list in dashboard widget for garagesale wordpress plugin
+** @brief lightweight table layout class to display users item list in dashboard widget for garagesale wordpress plugin
 ** @author Leo Eibler - wordpress@sprossenwanne.at
 ** @date 20120331 wordpress@sprossenwanne.at
 **                create class \n
@@ -12,7 +12,7 @@
 */
 
 /*
-  Copyright 2012 Leo Eibler (http://www.eibler.at)
+  Copyright 2012-2013 Leo Eibler (http://www.eibler.at)
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.

@@ -3,7 +3,7 @@
 Plugin Name: Garage Sale List Table
 Plugin URI: http://www.eibler.at/garagesale
 Description: The GarageSale List Table for Displaying elements (based on Custom List Table Example Version 1.1. from Matt Van Andel - see http://www.mattvanandel.com)
-Version: 1.0
+Version: 1.2
 Author: Matthew Van Andel - modified by Leo Eibler
 Author URI: http://www.mattvanandel.com - http://www.eibler.at
 License: GPL2
@@ -17,6 +17,9 @@ Text Domain: garagesale
 **                show user display_name instead of user_nicename \n
 ** @date 20130102 wordpress@sprossenwanne.at
 **                bugfix remove prepare calls with only 1 argument to work with wordpress 3.5 \n
+** @date 20130103 wordpress@sprossenwanne.at
+**                bugfix use $_REQUEST instead of $_GET to work with wordpress 3.5 \n
+**                add define GARAGESALE_ITEMS_PER_PAGE in garagesale.php as single point of configuration \n
 */
 
 /*  Copyright 2011  Matthew Van Andel  (email : matt@mattvanandel.com)
@@ -34,16 +37,6 @@ Text Domain: garagesale
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-
-
-
-/* == NOTICE ===================================================================
- * Please do not alter this file. Instead: make a copy of the entire plugin, 
- * rename it, and work inside the copy. If you modify this plugin directly and 
- * an update is released, your changes will be lost!
- * ========================================================================== */
-
-
 
 /*************************** LOAD THE BASE CLASS *******************************
  *******************************************************************************
@@ -299,23 +292,23 @@ class GarageSale_List_Table extends WP_List_Table {
 	function process_bulk_action() {
 		//Detect when a bulk action is being triggered...
 		if( 'delete' === $this->current_action() ) {
-			if( isset($_GET['item']) && is_array($_GET['item']) ) {
-				foreach( $_GET['item'] as $itemId ) {
+			if( isset($_REQUEST['item']) && is_array($_REQUEST['item']) ) {
+				foreach( $_REQUEST['item'] as $itemId ) {
 					$this->garagesale->deleteElement( $itemId );
 				}
 			} else 
-			if( isset($_GET['id']) && $_GET['id'] ) { 
-				$this->garagesale->deleteElement( $_GET['id'] );
+			if( isset($_REQUEST['id']) && $_REQUEST['id'] ) { 
+				$this->garagesale->deleteElement( $_REQUEST['id'] );
 			}
 		}
 		if( 'sold' === $this->current_action() ) {
-			if( isset($_GET['item']) && is_array($_GET['item']) ) {
-				foreach( $_GET['item'] as $itemId ) {
+			if( isset($_REQUEST['item']) && is_array($_REQUEST['item']) ) {
+				foreach( $_REQUEST['item'] as $itemId ) {
 					$this->garagesale->soldElement( $itemId );
 				}
 			} else 
-			if( isset($_GET['id']) && $_GET['id'] ) { 
-				$this->garagesale->soldElement( $_GET['id'] );
+			if( isset($_REQUEST['id']) && $_REQUEST['id'] ) { 
+				$this->garagesale->soldElement( $_REQUEST['id'] );
 			}
 		}
 	}
@@ -341,7 +334,7 @@ class GarageSale_List_Table extends WP_List_Table {
 		/**
 		 * First, lets decide how many records per page to show
 		 */
-		$per_page = 5;
+		$per_page = GARAGESALE_ITEMS_PER_PAGE;
 		
 		
 		/**
