@@ -1,7 +1,7 @@
 <?php
 /**
  * @package GarageSale
- * @version 1.2.1
+ * @version 1.2.2
  * @date 20120401 wordpress@sprossenwanne.at
  *                finalize plugin \n
  * @date 20120420 wordpress@sprossenwanne.at
@@ -17,6 +17,9 @@
  *                add define GARAGESALE_ITEMS_PER_PAGE in garagesale.php as single point of configuration \n
  *                bugfix use wp_get_image_editor() instead of wp_create_thumbnail() in wordpress version greater or equal than 3.5 \n
  *                improve error handling (use trigger_error) if something was wrong while uploading image \n
+ * @date 20130104 wordpress@sprossenwanne.at
+ *                bugfix pagination total pages check in admin area \n
+ *                bugfix GarageSale_List_Table4User::get_pagenum() method for usage with permanent links enabled \n
  */
 /*
 Plugin Name: Garage Sale
@@ -24,7 +27,7 @@ Plugin URI: http://www.eibler.at/garagesale
 Description: This plugin is a lightweight solution to put a kind of garage sale on your wordpress page. Users can put their stuff with a picture, description, price and contact on a wordpress site. The users are wordpress users with access right Subscriber (so every registered user can use the garage sale). Put the string "[GarageSaleList]" on any page or article post where you want to display the list of sale items.
 This Plugin creates an own subfolder within the upload folder for the pictures.
 Author: Leo Eibler
-Version: 1.2.1
+Version: 1.2.2
 Author URI: http://www.eibler.at
 Text Domain: garagesale
 */
@@ -53,7 +56,7 @@ Text Domain: garagesale
 /*
 ** @brief GARAGESALE_VERSION: version number of current plugin (can be used for plugin upgrade procedure in future)
 */
-define( 'GARAGESALE_VERSION', '1.2.1' );
+define( 'GARAGESALE_VERSION', '1.2.2' );
 
 /*
 ** @brief GARAGESALE_ITEMS_PER_PAGE: the number of items per page displayed in the tables

@@ -16,6 +16,8 @@
 **                add define GARAGESALE_ITEMS_PER_PAGE in garagesale.php as single point of configuration \n
 **                bugfix pagination \n
 **                improve get_pagenum() method \n
+** @date 20130104 wordpress@sprossenwanne.at
+**                bugfix get_pagenum() method for use with permanent links enabled \n
 */
 
 /*
@@ -289,13 +291,28 @@ class GarageSale_List_Table4User {
 	}
 	
 	public function get_pagenum() {
+		$paged = 0;
 		if( isset($_REQUEST['paged']) && is_numeric($_REQUEST['paged']) ) {
-			if( $_REQUEST['paged'] > $this->getTotalPages() ) {
-				return $this->getTotalPages();
-			}
-			if( $_REQUEST['paged'] > 0 ) {
-				return $_REQUEST['paged'];
-			}
+			// try to get the page from REQUEST
+			$paged = $_REQUEST['paged'];
+		}
+		// see http://codex.wordpress.org/Function_Reference/get_query_var
+		if( !$paged ) {
+			// try to get the page from variable 'paged'
+			$paged = (get_query_var('paged')) ? get_query_var('paged') : 0;
+		}
+		if( !$paged ) {
+			// try to get the page from variable 'page'
+			$paged = (get_query_var('page')) ? get_query_var('page') : 0;
+		}
+		if( !is_numeric( $paged ) ) {
+			$paged = 0;
+		}
+		if( $paged > $this->getTotalPages() ) {
+			return $this->getTotalPages();
+		}
+		if( $paged > 0 ) {
+			return $paged;
 		}
 		return 1;
 	}

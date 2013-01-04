@@ -20,6 +20,8 @@ Text Domain: garagesale
 ** @date 20130103 wordpress@sprossenwanne.at
 **                bugfix use $_REQUEST instead of $_GET to work with wordpress 3.5 \n
 **                add define GARAGESALE_ITEMS_PER_PAGE in garagesale.php as single point of configuration \n
+** @date 20130104 wordpress@sprossenwanne.at
+**                bugfix pagination total pages check \n
 */
 
 /*  Copyright 2011  Matthew Van Andel  (email : matt@mattvanandel.com)
@@ -412,46 +414,20 @@ class GarageSale_List_Table extends WP_List_Table {
 				$order .= ' ASC ';
 			}
 		}
-
-		$current_page = $this->get_pagenum();
 		
-		$limit = ' LIMIT '.$per_page.' OFFSET '.($current_page-1)*$per_page;
-		$data = $wpdb->get_results( $select.' '.$wc.$order.$limit, ARRAY_A );
-				
 		/**
 		 * REQUIRED for pagination. Let's check how many items are in our data array. 
 		 * In real-world use, this would be the total number of items in your database, 
 		 * without filtering. We'll need this later, so you should always include it 
 		 * in your own package classes.
 		 */
-		$select = 'SELECT COUNT(id) AS total_items FROM '.$this->table_stuff.' '.$wc;
+		// first setup pagination
+		$selectTotalItems = 'SELECT COUNT(id) AS total_items FROM '.$this->table_stuff.' '.$wc;
 		$total_items = 0;
-		$dataTotalItems = $wpdb->get_row( $select, ARRAY_A, 0 );
+		$dataTotalItems = $wpdb->get_row( $selectTotalItems, ARRAY_A, 0 );
 		if( isset( $dataTotalItems['total_items'] ) ) {
 			$total_items = $dataTotalItems['total_items'];
 		}
-				
-		
-		/***********************************************************************
-		 * ---------------------------------------------------------------------
-		 * vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-		 * 
-		 * In a real-world situation, this is where you would place your query.
-		 * 
-		 * ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-		 * ---------------------------------------------------------------------
-		 **********************************************************************/
-		
-				
-		
-		
-		/**
-		 * REQUIRED. Now we can add our *sorted* data to the items property, where 
-		 * it can be used by the rest of the class.
-		 */
-		$this->items = $data;
-		
-		
 		/**
 		 * REQUIRED. We also have to register our pagination options & calculations.
 		 */
@@ -460,6 +436,18 @@ class GarageSale_List_Table extends WP_List_Table {
 			'per_page'    => $per_page,                     //WE have to determine how many items to show on a page
 			'total_pages' => ceil($total_items/$per_page)   //WE have to calculate the total number of pages
 		) );
+		
+		$current_page = $this->get_pagenum();
+		
+		$limit = ' LIMIT '.$per_page.' OFFSET '.($current_page-1)*$per_page;
+		$data = $wpdb->get_results( $select.' '.$wc.$order.$limit, ARRAY_A );
+
+		/**
+		 * REQUIRED. Now we can add our *sorted* data to the items property, where 
+		 * it can be used by the rest of the class.
+		 */
+		$this->items = $data;
+		
 	}
 	
 	

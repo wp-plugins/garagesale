@@ -1,10 +1,10 @@
 === GarageSale ===
 Contributors: leo.eibler
 Donate link: http://www.eibler.at/
-Tags: Wordpress, GarageSale, Garage Sale, Flohmarkt, Online-Flohmarkt, Plugin, Wordpress Plugin, Subscriber
+Tags: Wordpress, GarageSale, Garage Sale, Yard Sale, Flohmarkt, Online-Flohmarkt, Plugin, Wordpress Plugin, Subscriber
 Requires at least: 3.3.1
 Tested up to: 3.5
-Stable tag: 1.2.1
+Stable tag: 1.2.2
 License: Apache License, Version 2.0
 License URI: http://www.apache.org/licenses/LICENSE-2.0
 
@@ -31,6 +31,10 @@ look at http://www.eibler.at/garagesale/ for detailled description of usage and 
 * look at http://www.eibler.at/garagesale/ for detailled description of usage and installation
 
 == Changelog ==
+
+= 1.2.2 =
+* bugfix pagination for permanent links
+* bugfix pagination total pages check in admin area
 
 = 1.2.1 =
 * bugfix pagination
