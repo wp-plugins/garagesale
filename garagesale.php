@@ -1,7 +1,7 @@
 <?php
 /**
  * @package GarageSale
- * @version 1.2.2
+ * @version 1.2.3
  * @date 20120401 wordpress@sprossenwanne.at
  *                finalize plugin \n
  * @date 20120420 wordpress@sprossenwanne.at
@@ -20,6 +20,10 @@
  * @date 20130104 wordpress@sprossenwanne.at
  *                bugfix pagination total pages check in admin area \n
  *                bugfix GarageSale_List_Table4User::get_pagenum() method for usage with permanent links enabled \n
+ * @date 20140122 wordpress@sprossenwanne.at
+ *                version change from 1.2.2 -> 1.2.3 \n
+ *                bugfix css attack in footer, newitem and user page \n
+ *                bugfix file upload - convert filename to lower case (upper case in extension produces error in some systems) \n
  */
 /*
 Plugin Name: Garage Sale
@@ -27,7 +31,7 @@ Plugin URI: http://www.eibler.at/garagesale
 Description: This plugin is a lightweight solution to put a kind of garage sale on your wordpress page. Users can put their stuff with a picture, description, price and contact on a wordpress site. The users are wordpress users with access right Subscriber (so every registered user can use the garage sale). Put the string "[GarageSaleList]" on any page or article post where you want to display the list of sale items.
 This Plugin creates an own subfolder within the upload folder for the pictures.
 Author: Leo Eibler
-Version: 1.2.2
+Version: 1.2.3
 Author URI: http://www.eibler.at
 Text Domain: garagesale
 */
@@ -56,7 +60,7 @@ Text Domain: garagesale
 /*
 ** @brief GARAGESALE_VERSION: version number of current plugin (can be used for plugin upgrade procedure in future)
 */
-define( 'GARAGESALE_VERSION', '1.2.2' );
+define( 'GARAGESALE_VERSION', '1.2.3' );
 
 /*
 ** @brief GARAGESALE_ITEMS_PER_PAGE: the number of items per page displayed in the tables
@@ -305,7 +309,7 @@ class GarageSalePlugin {
 				$origfilename = $_FILES['uploadfile']['name'];
 				$i=0;
 				do {
-					$newUploadFile = $i.'_'.$this->data['post_author'].'_'.$origfilename;
+					$newUploadFile = strtolower($i.'_'.$this->data['post_author'].'_'.$origfilename);
 					$i++;
 				} while( file_exists(GARAGESALE_UPLOAD_DIR.'/'.$newUploadFile) );
 				$ret = @move_uploaded_file( $tempname, GARAGESALE_UPLOAD_DIR.'/'.$newUploadFile );

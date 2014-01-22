@@ -4,7 +4,7 @@ Donate link: http://www.eibler.at/
 Tags: Wordpress, GarageSale, Garage Sale, Yard Sale, Flohmarkt, Online-Flohmarkt, Plugin, Wordpress Plugin, Subscriber
 Requires at least: 3.3.1
 Tested up to: 3.5
-Stable tag: 1.2.2
+Stable tag: 1.2.3
 License: Apache License, Version 2.0
 License URI: http://www.apache.org/licenses/LICENSE-2.0
 
@@ -31,6 +31,10 @@ look at http://www.eibler.at/garagesale/ for detailled description of usage and 
 * look at http://www.eibler.at/garagesale/ for detailled description of usage and installation
 
 == Changelog ==
+
+= 1.2.3 =
+* bugfix css attack in footer, newitem and user page
+* bugfix file upload - convert filename to lower case (upper case in extension produces error in some systems) 
 
 = 1.2.2 =
 * bugfix pagination for permanent links

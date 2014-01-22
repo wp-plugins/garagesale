@@ -6,7 +6,7 @@
 ?>
 <div class=wrap>
 	<h2><?php if( isset($this->data['id']) && $this->data['id'] > 0 ) { echo __('Edit Item','garagesale'); } else { echo __('Add Item','garagesale'); } ?></h2>
-	<form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>" enctype="multipart/form-data">
+	<form method="post" action="<?php echo str_replace( '<', '', str_replace( '>', '', $_SERVER["REQUEST_URI"] ) ); ?>" enctype="multipart/form-data">
 		<p><?php echo __('ID','garagesale'); ?>: <?php if( isset($this->data['id']) && $this->data['id'] > 0 ) { echo $this->data['id'].' ('.date_i18n(get_option('date_format') ,strtotime($this->data['post_date'])).')'; } else { _e( 'NEW (NOT SAVED!)','garagesale'); }  ?> </p>
 		<!-- p>Author: <?php echo get_current_user_id(); ?> </p -->
 		<p><?php echo __('Title','garagesale'); ?>: <br />
