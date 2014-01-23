@@ -3,7 +3,7 @@
 Plugin Name: Garage Sale List Table
 Plugin URI: http://www.eibler.at/garagesale
 Description: The GarageSale List Table for Displaying elements (based on Custom List Table Example Version 1.1. from Matt Van Andel - see http://www.mattvanandel.com)
-Version: 1.2
+Version: 1.2.4
 Author: Matthew Van Andel - modified by Leo Eibler
 Author URI: http://www.mattvanandel.com - http://www.eibler.at
 License: GPL2
@@ -22,6 +22,9 @@ Text Domain: garagesale
 **                add define GARAGESALE_ITEMS_PER_PAGE in garagesale.php as single point of configuration \n
 ** @date 20130104 wordpress@sprossenwanne.at
 **                bugfix pagination total pages check \n
+** @date 20140123 wordpress@sprossenwanne.at
+**                version change from 1.2.3 -> 1.2.4 \n
+**                add support for multisite (use $wpdb->users for users table) \n
 */
 
 /*  Copyright 2011  Matthew Van Andel  (email : matt@mattvanandel.com)
@@ -380,7 +383,7 @@ class GarageSale_List_Table extends WP_List_Table {
 			's.description, s.picture, s.price, s.contact, s.status, '.
 			'u.display_name, u.user_login '.
 			'FROM '.$this->table_stuff.' AS s '.
-			'LEFT JOIN '.$wpdb->prefix.'users AS u '.
+			'LEFT JOIN '.$wpdb->users.' AS u '.
 			'ON s.post_author = u.ID ';
 		$wc = '';
 		switch( $this->listType ) {

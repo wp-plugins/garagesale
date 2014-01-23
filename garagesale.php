@@ -1,7 +1,7 @@
 <?php
 /**
  * @package GarageSale
- * @version 1.2.3
+ * @version 1.2.4
  * @date 20120401 wordpress@sprossenwanne.at
  *                finalize plugin \n
  * @date 20120420 wordpress@sprossenwanne.at
@@ -24,6 +24,11 @@
  *                version change from 1.2.2 -> 1.2.3 \n
  *                bugfix css attack in footer, newitem and user page \n
  *                bugfix file upload - convert filename to lower case (upper case in extension produces error in some systems) \n
+ * @date 20140123 wordpress@sprossenwanne.at
+ *                version change from 1.2.3 -> 1.2.4 \n
+ *                modify css attack bugfix in newitem page \n
+ *                add support for multisite \n
+ *                tested with wordpress 3.8 and wordpress multisite 3.8 \n
  */
 /*
 Plugin Name: Garage Sale
@@ -31,13 +36,13 @@ Plugin URI: http://www.eibler.at/garagesale
 Description: This plugin is a lightweight solution to put a kind of garage sale on your wordpress page. Users can put their stuff with a picture, description, price and contact on a wordpress site. The users are wordpress users with access right Subscriber (so every registered user can use the garage sale). Put the string "[GarageSaleList]" on any page or article post where you want to display the list of sale items.
 This Plugin creates an own subfolder within the upload folder for the pictures.
 Author: Leo Eibler
-Version: 1.2.3
+Version: 1.2.4
 Author URI: http://www.eibler.at
 Text Domain: garagesale
 */
 
 /*
-  Copyright 2012-2013 Leo Eibler (http://www.eibler.at)
+  Copyright 2012-2014 Leo Eibler (http://www.eibler.at)
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -60,7 +65,7 @@ Text Domain: garagesale
 /*
 ** @brief GARAGESALE_VERSION: version number of current plugin (can be used for plugin upgrade procedure in future)
 */
-define( 'GARAGESALE_VERSION', '1.2.3' );
+define( 'GARAGESALE_VERSION', '1.2.4' );
 
 /*
 ** @brief GARAGESALE_ITEMS_PER_PAGE: the number of items per page displayed in the tables

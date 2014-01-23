@@ -9,10 +9,12 @@
 **                add license \n
 ** @date 20130102 wordpress@sprossenwanne.at
 **                bugfix remove prepare calls with only 1 argument to work with wordpress 3.5 \n
+** @date 20140123 wordpress@sprossenwanne.at
+**                add support for multisite (use $wpdb->users for users table) \n
 */
 
 /*
-  Copyright 2012-2013 Leo Eibler (http://www.eibler.at)
+  Copyright 2012-2014 Leo Eibler (http://www.eibler.at)
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -122,7 +124,7 @@ class GarageSale_List_Table4Dashboard {
 			's.description, s.picture, s.picture_original, s.price, s.contact, s.status, '.
 			'u.display_name, u.user_login '.
 			'FROM '.$this->table_stuff.' AS s '.
-			'LEFT JOIN '.$wpdb->prefix.'users AS u '.
+			'LEFT JOIN '.$wpdb->users.' AS u '.
 			'ON s.post_author = u.ID ';
 		$wc = 'WHERE s.status = '.GARAGESALE_ELEMENT_ACTIVE;
 		$wc .= ' AND s.post_author = '.get_current_user_id();
